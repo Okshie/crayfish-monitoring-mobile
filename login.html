@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Crayfish Monitoring — Login</title><link rel="stylesheet" href="admin.css"><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="config.js"></script></head>
+<body class="login-page">
+<div class="login-card">
+  <div class="logo">🦞</div><div class="eyebrow">THESIS MONITORING SYSTEM</div>
+  <h1>Crayfish IoT Dashboard</h1><p>Sign in to view sensor records and control the growing system.</p>
+  <form id="loginForm">
+    <label>Email<input id="email" type="email" autocomplete="username" required placeholder="admin@example.com"></label>
+    <label>Password<input id="password" type="password" autocomplete="current-password" required></label>
+    <button id="loginButton">Sign in</button><div id="error"></div>
+  </form>
+</div>
+<script>
+const crayfishSupabaseClient =
+  window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+
+(async () => {
+  const { data: { session } } =
+    await crayfishSupabaseClient.auth.getSession();
+
+  if (session) {
+    window.location.href = "index.html";
+  }
+})();
+
+document.getElementById("loginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const errorBox = document.getElementById("error");
+  const loginButton = document.getElementById("loginButton");
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value;
+
+  errorBox.textContent = "";
+  loginButton.disabled = true;
+  loginButton.textContent = "Signing in...";
+
+  const { error } =
+    await crayfishSupabaseClient.auth.signInWithPassword({
+      email: email,
+      password: password
+    });
+
+  if (error) {
+    errorBox.textContent = error.message;
+    loginButton.disabled = false;
+    loginButton.textContent = "Sign in";
+    return;
+  }
+
+  window.location.href = "index.html";
+});
+</script></body></html>
